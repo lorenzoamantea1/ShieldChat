@@ -1,6 +1,6 @@
 # SchiedChat
 
-## **SchiedChat** is a secure chat system built on WebSockets, using **AES-GCM 256-bit encryption** for messages and RSA authentication. The server acts as a relay between clients, ensuring confidentiality  
+**SchiedChat** is a secure chat system built on WebSockets, using **AES-GCM 256-bit encryption** for messages and RSA authentication. The server acts as a relay between clients, ensuring confidentiality  
 ---
 
 ## Features
@@ -14,3 +14,15 @@
 
 ---
 
+## Installation
+```bash
+git clone https://github.com/tuo-username/SchiedChat.git
+cd SchiedChat
+pip install -r requirements.txt
+```
+
+## Security
+- AES-GCM 256-bit for confidentiality and authenticity
+- Nonces + timestamps prevent replay attacks
+- Forward with session AES keys
+- Nothing is logged
