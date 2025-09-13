@@ -1,6 +1,7 @@
-# 🛡️ SchiedChat 🛡️
+# 🛡️ SchiedChat
 
 **SchiedChat** is a secure chat system built on WebSockets, using **AES-GCM 256-bit encryption** for messages and RSA authentication. The server acts as a relay between clients, ensuring confidentiality  
+
 ---
 
 ## 🔒 Features
