@@ -22,9 +22,10 @@ cd SchiedChat
 pip install -r requirements.txt
 ```
 
+
+
 ## ⚡ Use
 ### 🖥️ Server
-
 1. **Configure the server**  
    🔹 Edit the **host** and **port** in the configuration file if needed.
 
@@ -36,7 +37,6 @@ python3 main.py
 3. **✅ The server is now listening and ready to accept client connections.**
 
 ### 💻 Client
-
 1. **Configure the client**  
    🔹 Make sure the **host** and **port** match the server settings.
 
@@ -50,6 +50,8 @@ python3 main.py
 
 4. **Chat securely!**  
    🔒 All messages are end-to-end encrypted.
+
+
 
 ## 🛡️ Security
 - AES-GCM 256-bit for confidentiality and authenticity
