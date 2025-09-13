@@ -7,13 +7,18 @@ from channel import Channel
 
 HOST = "localhost"
 PORT = 8765
-ID_FILE = "./.id"
+ID_FILE = "./client_id"
 SERVER_PUB = "./keys/server_rsa_public.pem"
 with open(SERVER_PUB) as f:
     SERVER_PUB_PEM = f.read().encode()
 
 def getClientId():
-    return str(uuid.uuid4())
+    if os.path.exists(ID_FILE):
+        return open(ID_FILE, "r").read().strip()
+    client_id = str(uuid.uuid4())
+    with open(ID_FILE, "w") as f:
+        f.write(client_id)
+    return client_id
 
 class ClientConnection:
     def __init__(self, host=HOST, port=PORT, server_pub=SERVER_PUB_PEM):
