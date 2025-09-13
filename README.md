@@ -24,22 +24,22 @@ pip install -r requirements.txt
 
 ## ⚡ Use
 Server
-- Change host id and port
-### Run the server
+1. Change host id and port
+2. Run the server
 ```bash
 cd server 
 python3 main.py
 ```
 
 Client
-- Change host id and port
-### Run the client
+1. Change host id and port
+2. Run the client
 ```bash
 cd client 
 python3 main.py
 ```
-- Enter the other client id
-- Chat safely!
+3. Enter the other client id
+4. Chat safely!
 
 ## 🛡️ Security
 - AES-GCM 256-bit for confidentiality and authenticity
