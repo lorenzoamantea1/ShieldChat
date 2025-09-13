@@ -8,8 +8,8 @@
 
 - **Secure messaging** with AES-GCM 256-bit encryption.  
 - **RSA handshake** for client-server authentication.  
-- **Replay protection** using nonces and timestamps.  
-- **No-log policy**: plaintext messages are never stored or printed.  
+- **No phone needed**: each client will have a random uuid, u can change it anytime
+- **No-log policy**: messages are never stored or printed.  
 - **Secure message forwarding** between clients.  
 - **Supports multiple simultaneous clients**.  
 
@@ -22,21 +22,24 @@ cd SchiedChat
 pip install -r requirements.txt
 ```
 
----
-
 ## ⚡ Use
+Server
+- Change host id and port
 ### Run the server
 ```bash
 cd server 
 python3 main.py
 ```
+
+Client
+- Change host id and port
 ### Run the client
 ```bash
 cd client 
 python3 main.py
 ```
-
----
+- Enter the other client id
+- Chat safely!
 
 ## 🛡️ Security
 - AES-GCM 256-bit for confidentiality and authenticity
