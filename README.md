@@ -23,23 +23,33 @@ pip install -r requirements.txt
 ```
 
 ## ⚡ Use
-Server
-1. Change host id and port
-2. Run the server
-```bash
-cd server 
-python3 main.py
-```
+### 🖥️ Server
 
-Client
-1. Change host id and port
-2. Run the client
+1. **Configure the server**  
+   🔹 Edit the **host** and **port** in the configuration file if needed.
+
+2. **Start the server**  
 ```bash
-cd client 
+cd server
 python3 main.py
 ```
-3. Enter the other client id
-4. Chat safely!
+3. **✅ The server is now listening and ready to accept client connections.**
+
+### 💻 Client
+
+1. **Configure the client**  
+   🔹 Make sure the **host** and **port** match the server settings.
+
+2. **Start the client**  
+```bash
+cd client
+python3 main.py
+```
+3. **Connect to another client**  
+   🔹 Enter the **ID of the client** you want to chat with.
+
+4. **Chat securely!**  
+   🔒 All messages are end-to-end encrypted.
 
 ## 🛡️ Security
 - AES-GCM 256-bit for confidentiality and authenticity
