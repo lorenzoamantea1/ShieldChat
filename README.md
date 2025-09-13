@@ -22,6 +22,22 @@ cd SchiedChat
 pip install -r requirements.txt
 ```
 
+---
+
+## ⚡ Use
+### Run the server
+```bash
+cd server 
+python3 main.py
+```
+### Run the client
+```bash
+cd client 
+python3 main.py
+```
+
+---
+
 ## 🛡️ Security
 - AES-GCM 256-bit for confidentiality and authenticity
 - Nonces + timestamps prevent replay attacks
