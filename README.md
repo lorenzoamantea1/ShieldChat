@@ -27,6 +27,36 @@
 - **No logging**: messages are never stored on the server.  
 - **Multi-client safe**: isolated sessions prevent message leakage between clients.
 
+## 🔑 Handshake & Client Authentication Flow
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+
+    Note over Client,Server: Step 1 - Server ephemeral key
+    Server->>Client: Send ephemeral X25519 pub key + signature (signed with server RSA)
+    
+    Note over Client,Server: Step 2 - Client verifies server
+    Client->>Client: Verify server signature using stored server public RSA key
+    Client->>Server: Send ephemeral X25519 pub key
+
+    Note over Client,Server: Step 3 - Shared AES session key
+    Client->>Client: Derive AES-GCM key from X25519 shared secret
+    Server->>Server: Derive AES-GCM key from X25519 shared secret
+
+    Note over Client,Server: Step 4 - Client authenticates with client_id
+    Client->>Server: Send {"client_id", signature(client_id), client_pub} encrypted with AES
+    Server->>Server: Verify client signature with stored client_pub
+    alt client_id exists
+        Server->>Client: Accept, use existing ID
+    else new client_id
+        Server->>Client: Assign new client_id
+    end
+
+    Note over Client,Server: Step 5 - Secure session established
+    Client<->>Server: All future messages encrypted with session AES-GCM key
+```
 ---
 
 ## 🚀 Installation
