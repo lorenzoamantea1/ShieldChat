@@ -26,10 +26,44 @@
 - **Nonces + session AES keys** prevent replay attacks.  
 - **No logging**: messages are never stored on the server.  
 - **Multi-client safe**: isolated sessions prevent message leakage between clients.
+- 
+---
+
+## 🚀 Installation
+```bash
+git clone https://github.com/tuo-username/SchiedChat.git
+cd SchiedChat
+pip install -r requirements.txt
+```
+
+
+
+## ⚡ Use
+### 🖥️ Server
+1. **Configure the server**  
+- Edit the **host** and **port** in the configuration file if needed.
+
+2. **Start the server**  
+```bash
+cd server
+python3 main.py
+```
+3. **✅ The server is now listening and ready to accept client connections.**
+
+### 💻 Client
+1. **Configure the client**  
+- Make sure the **host** and **port** match the server settings.
+2. **Start the client**  
+```bash
+cd client
+python3 main.py
+```
+3. **Connect to another client**  
+ Enter the **ID of the client** you want to chat with.
+4. **Chat securely!**  
+
 
 ## 🔑 Handshake & Client Authentication Flow
-
-
 
 ```mermaid
 sequenceDiagram
@@ -70,38 +104,3 @@ sequenceDiagram
         Server->>Client: All future messages encrypted with AES-GCM
     end
 ```
-
----
-
-## 🚀 Installation
-```bash
-git clone https://github.com/tuo-username/SchiedChat.git
-cd SchiedChat
-pip install -r requirements.txt
-```
-
-
-
-## ⚡ Use
-### 🖥️ Server
-1. **Configure the server**  
-- Edit the **host** and **port** in the configuration file if needed.
-
-2. **Start the server**  
-```bash
-cd server
-python3 main.py
-```
-3. **✅ The server is now listening and ready to accept client connections.**
-
-### 💻 Client
-1. **Configure the client**  
-- Make sure the **host** and **port** match the server settings.
-2. **Start the client**  
-```bash
-cd client
-python3 main.py
-```
-3. **Connect to another client**  
- Enter the **ID of the client** you want to chat with.
-4. **Chat securely!**  
