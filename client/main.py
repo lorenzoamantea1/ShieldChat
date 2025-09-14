@@ -19,11 +19,11 @@ class ClientApp:
         self.load_contacts()
         curses.start_color()
         curses.use_default_colors()
-        curses.init_pair(1, curses.COLOR_GREEN, -1)
-        curses.init_pair(2, curses.COLOR_CYAN, -1)
-        curses.init_pair(3, curses.COLOR_YELLOW, -1)
-        curses.init_pair(4, curses.COLOR_MAGENTA, -1)
-        curses.init_pair(5, curses.COLOR_WHITE, -1)
+        curses.init_pair(1, curses.COLOR_CYAN, -1)       # own message
+        curses.init_pair(2, curses.COLOR_BLUE, -1)       # received
+        curses.init_pair(3, curses.COLOR_WHITE, -1)      # header
+        curses.init_pair(4, curses.COLOR_CYAN, -1)       # prompt
+        curses.init_pair(5, curses.COLOR_BLUE, -1)       # default
 
     def load_contacts(self):
         if os.path.exists(CONTACTS_FILE):
@@ -49,10 +49,10 @@ class ClientApp:
         box_width = w - 4
         start_y = 2
         start_x = 2
-        self.stdscr.addstr(start_y, start_x, '┌' + '─' * (box_width - 2) + '┐')
+        self.stdscr.addstr(start_y, start_x, '┌' + '─' * (box_width - 2) + '┐', curses.color_pair(3))
         for y in range(1, box_height - 1):
-            self.stdscr.addstr(start_y + y, start_x, '│' + ' ' * (box_width - 2) + '│')
-        self.stdscr.addstr(start_y + box_height - 1, start_x, '└' + '─' * (box_width - 2) + '┘')
+            self.stdscr.addstr(start_y + y, start_x, '│' + ' ' * (box_width - 2) + '│', curses.color_pair(5))
+        self.stdscr.addstr(start_y + box_height - 1, start_x, '└' + '─' * (box_width - 2) + '┘', curses.color_pair(3))
         self.stdscr.addstr(start_y, start_x + 2, " Contacts ", curses.color_pair(3) | curses.A_BOLD)
         visible_height = box_height - 3
         lines = list(self.contacts.items())
@@ -76,10 +76,10 @@ class ClientApp:
         box_width = w - 4
         start_y = 2
         start_x = 2
-        self.stdscr.addstr(start_y, start_x, '┌' + '─' * (box_width - 2) + '┐')
+        self.stdscr.addstr(start_y, start_x, '┌' + '─' * (box_width - 2) + '┐', curses.color_pair(3))
         for y in range(1, box_height - 1):
-            self.stdscr.addstr(start_y + y, start_x, '│' + ' ' * (box_width - 2) + '│')
-        self.stdscr.addstr(start_y + box_height - 1, start_x, '└' + '─' * (box_width - 2) + '┘')
+            self.stdscr.addstr(start_y + y, start_x, '│' + ' ' * (box_width - 2) + '│', curses.color_pair(5))
+        self.stdscr.addstr(start_y + box_height - 1, start_x, '└' + '─' * (box_width - 2) + '┘', curses.color_pair(3))
         chat_name = self.contacts.get(self.selected_chat, self.selected_chat)
         self.stdscr.addstr(start_y, start_x + 2, f" Chat with {chat_name} ", curses.color_pair(3) | curses.A_BOLD)
         visible_height = box_height - 3
@@ -161,7 +161,7 @@ class ClientApp:
 
     async def prompt_input(self, prompt_text):
         h, _ = self.stdscr.getmaxyx()
-        self.stdscr.addstr(h-2, 2, prompt_text)
+        self.stdscr.addstr(h-2, 2, prompt_text, curses.color_pair(4))
         self.stdscr.clrtoeol()
         self.stdscr.refresh()
         input_bytes = await asyncio.to_thread(self.stdscr.getstr, h-2, 2 + len(prompt_text), 50)
