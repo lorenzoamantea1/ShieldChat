@@ -36,24 +36,24 @@ sequenceDiagram
     participant Client
     participant Server
 
-    rect rgb(235, 245, 255)
+    rect transparent
         Note over Server: Step 1 - Server ephemeral key
         Server->>Client: Ephemeral X25519 pub key + RSA signature
     end
 
-    rect rgb(245, 235, 255)
+    rect transparent
         Note over Client: Step 2 - Client verifies server
         Client-->Client: Verify server signature using stored RSA pub key
         Client->>Server: Send ephemeral X25519 pub key
     end
 
-    rect rgb(235, 245, 255)
+    rect transparent
         Note over Client,Server: Step 3 - Shared AES session key
         Client-->Client: Derive AES-GCM key from shared secret
         Server-->Server: Derive AES-GCM key from shared secret
     end
 
-    rect rgb(245, 235, 255)
+    rect transparent
         Note over Client,Server: Step 4 - Client authentication
         Client->>Server: Send {client_id, signature(client_id), client_pub} encrypted
         Server-->Server: Verify client signature
@@ -64,12 +64,13 @@ sequenceDiagram
         end
     end
 
-    rect rgb(235, 245, 255)
+    rect transparent
         Note over Client,Server: Step 5 - Secure session established
         Client->>Server: All future messages encrypted with AES-GCM
         Server->>Client: All future messages encrypted with AES-GCM
     end
 ```
+
 ---
 
 ## 🚀 Installation
