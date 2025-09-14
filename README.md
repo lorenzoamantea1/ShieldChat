@@ -17,7 +17,6 @@
 
 ---
 
-
 ## 🛡️ Security
 - **AES-GCM 256-bit encryption** for message confidentiality and authenticity.  
 - **RSA + ephemeral X25519 handshake** ensures that each client-server connection is securely established.  
@@ -27,6 +26,7 @@
 - **No logging**: messages are never stored on the server.  
 - **Multi-client safe**: multiple clients can communicate simultaneously without risk of message leakage.
 
+---
 
 ## 🚀 Installation
 ```bash
