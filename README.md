@@ -30,9 +30,6 @@
 ## 🔑 Handshake & Client Authentication Flow
 
 ```mermaid
-## 🔑 Handshake & Client Authentication Flow
-
-```mermaid
 sequenceDiagram
     participant Client
     participant Server
