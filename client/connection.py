@@ -5,7 +5,7 @@ import asyncio
 import websockets
 from channel import Channel
 
-HOST = "localhost"
+HOST = "79.41.128.1"
 PORT = 8765
 ID_FILE = "./client_id"
 SERVER_PUB = "./keys/server_rsa_public.pem"
