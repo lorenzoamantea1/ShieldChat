@@ -2,7 +2,7 @@ import asyncio
 import websockets
 from connection import ServerConnection
 
-HOST = "localhost"
+HOST = "0.0.0.0"
 PORT = 8765
 KEY_DIR = "./keys"
 KEEPALIVE_INTERVAL = 15
