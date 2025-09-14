@@ -30,6 +30,9 @@
 ## 🔑 Handshake & Client Authentication Flow
 
 ```mermaid
+## 🔑 Handshake & Client Authentication Flow
+
+```mermaid
 sequenceDiagram
     participant Client
     participant Server
@@ -55,7 +58,9 @@ sequenceDiagram
     end
 
     Note over Client,Server: Step 5 - Secure session established
-    Client<->>Server: All future messages encrypted with session AES-GCM key
+    Client->>Server: All future messages encrypted with session AES-GCM key
+    Server->>Client: All future messages encrypted with session AES-GCM key
+
 ```
 ---
 
