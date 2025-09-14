@@ -1,16 +1,15 @@
 import asyncio, json, uuid
 from collections import deque
 from modules.crypto_utils import AESHandler, RSAHandler
-from modules.keys import RSAKey
 from cryptography.hazmat.primitives import serialization
 import os
 
 CLIENT_KEYS_FILE = "./storage/client_keys.json"
 
 class ServerConnection:
-    def __init__(self, ws, key_dir, clients_map):
+    def __init__(self, ws, server_rsa, clients_map):
         self.ws = ws
-        self.server_rsa = RSAKey(key_dir)
+        self.server_rsa = server_rsa
         self.aesgcm = None
         self.clients_map = clients_map
         self.client_id = None

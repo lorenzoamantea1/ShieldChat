@@ -89,7 +89,6 @@ class ClientConnection:
 
     async def send_message_to(self, target_id, text):
         msg = {"target": target_id, "text": text}
-        print(msg)
         await self.channel.send(json.dumps(msg))
 
     async def receive_message(self):
