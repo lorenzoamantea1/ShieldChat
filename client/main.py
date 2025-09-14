@@ -1,5 +1,4 @@
 import asyncio
-import time
 import curses
 import json
 import os
@@ -7,53 +6,34 @@ from connection import ClientConnection
 
 CONTACTS_FILE = "contacts.json"
 
-class UI:
-    def __init__(self, stdscr, client_id):
-        self.stdscr = stdscr
-        self.client_id = client_id
-        curses.start_color()
-        curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
-        curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
-        curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-        curses.init_pair(4, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
-        curses.init_pair(5, curses.COLOR_WHITE, curses.COLOR_BLACK)
-
-    def header(self, w):
-        header_text = f" ShieldChat - Your ID: {self.client_id} "
-        self.stdscr.attron(curses.color_pair(3) | curses.A_BOLD)
-        if len(header_text) > w:
-            header_text = header_text[:w-3] + "..."
-        self.stdscr.addstr(0, 0, header_text.center(w, " "))
-        self.stdscr.attroff(curses.color_pair(3) | curses.A_BOLD)
-
-    def log(self, msg):
-        h, w = self.stdscr.getmaxyx()
-        self.stdscr.addstr(h-1, 0, f"[{time.strftime('%H:%M:%S')}] {msg}".ljust(w), curses.color_pair(3))
-        self.stdscr.refresh()
-
 class ClientApp:
     def __init__(self, stdscr):
         self.stdscr = stdscr
-        self.clientConnect = ClientConnection()
-        self.client_id = self.clientConnect.client_id
-        self.selectedChat = None
+        self.client = ClientConnection()
+        self.client_id = self.client.client_id
+        self.contacts = {}
         self.inbox = {}
+        self.selected_chat = None
         self.running = True
-        self.ui = UI(stdscr, self.client_id)
-        self.load_contacts()
         self.scroll_offset = 0
+        self.load_contacts()
+        curses.start_color()
+        curses.use_default_colors()
+        curses.init_pair(1, curses.COLOR_GREEN, -1)
+        curses.init_pair(2, curses.COLOR_CYAN, -1)
+        curses.init_pair(3, curses.COLOR_YELLOW, -1)
+        curses.init_pair(4, curses.COLOR_MAGENTA, -1)
+        curses.init_pair(5, curses.COLOR_WHITE, -1)
 
     def load_contacts(self):
         if os.path.exists(CONTACTS_FILE):
             try:
                 with open(CONTACTS_FILE, "r") as f:
                     self.contacts = json.load(f)
-                    for cid in self.contacts.keys():
+                    for cid in self.contacts:
                         self.inbox[cid] = []
             except:
                 self.contacts = {}
-        else:
-            self.contacts = {}
 
     def save_contacts(self):
         try:
@@ -62,97 +42,107 @@ class ClientApp:
         except:
             pass
 
-    async def display(self):
+    async def display_contacts_box(self):
         self.stdscr.clear()
         h, w = self.stdscr.getmaxyx()
-        self.ui.header(w)
-        content_height = h - 3
-        lines = []
-
-        if self.selectedChat is None:
-            lines.append("Contacts:")
-            for idx, (cid, name) in enumerate(self.contacts.items(), start=1):
-                text = f"{idx}. {name} ({cid})"
-                if len(text) > w-2:
-                    text = text[:w-5] + "..."
-                lines.append(text)
-            lines.append("- Add contact (add)")
-        else:
-            chat_name = self.contacts.get(self.selectedChat, self.selectedChat)
-            lines.append(f"Chat with {chat_name}:")
-            if self.selectedChat in self.inbox:
-                for msg_text, color_id in self.inbox[self.selectedChat]:
-                    if len(msg_text) > w-2:
-                        msg_text = msg_text[:w-5] + "..."
-                    lines.append((msg_text, color_id))
-
-        max_scroll = max(0, len(lines) - content_height)
+        box_height = h - 4
+        box_width = w - 4
+        start_y = 2
+        start_x = 2
+        self.stdscr.addstr(start_y, start_x, '┌' + '─' * (box_width - 2) + '┐')
+        for y in range(1, box_height - 1):
+            self.stdscr.addstr(start_y + y, start_x, '│' + ' ' * (box_width - 2) + '│')
+        self.stdscr.addstr(start_y + box_height - 1, start_x, '└' + '─' * (box_width - 2) + '┘')
+        self.stdscr.addstr(start_y, start_x + 2, " Contacts ", curses.color_pair(3) | curses.A_BOLD)
+        visible_height = box_height - 3
+        lines = list(self.contacts.items())
+        max_scroll = max(0, len(lines) - visible_height)
         self.scroll_offset = min(self.scroll_offset, max_scroll)
-        visible_lines = lines[self.scroll_offset:self.scroll_offset+content_height]
-
-        for i, line in enumerate(visible_lines, start=1):
-            if isinstance(line, tuple):
-                text, color_id = line
-                self.stdscr.addstr(i, 1, text, curses.color_pair(color_id))
-            else:
-                self.stdscr.addstr(i, 1, line, curses.color_pair(5))
-
-        input_row = h - 3
-        input_col = 1
-        prompt = "> " if self.selectedChat is None else ">"
-        offset = len(prompt)
-        self.stdscr.addstr(input_row, input_col, prompt, curses.color_pair(4))
-        self.stdscr.move(input_row, input_col + offset)
+        visible_contacts = lines[self.scroll_offset:self.scroll_offset + visible_height]
+        for idx, (cid, name) in enumerate(visible_contacts, start=1):
+            self.stdscr.addstr(start_y + idx, start_x + 2, f"{idx + self.scroll_offset}. {name} ({cid})", curses.color_pair(5))
+        if len(visible_contacts) < visible_height:
+            self.stdscr.addstr(start_y + len(visible_contacts) + 1, start_x + 2, "- Add contact (add)", curses.color_pair(4))
+        prompt_y = start_y + box_height
+        prompt_x = start_x
+        self.stdscr.addstr(prompt_y, prompt_x, "> ", curses.color_pair(4))
+        self.stdscr.move(prompt_y, prompt_x + 2)
         self.stdscr.refresh()
+
+    async def display_chat(self):
+        self.stdscr.clear()
+        h, w = self.stdscr.getmaxyx()
+        box_height = h - 4
+        box_width = w - 4
+        start_y = 2
+        start_x = 2
+        self.stdscr.addstr(start_y, start_x, '┌' + '─' * (box_width - 2) + '┐')
+        for y in range(1, box_height - 1):
+            self.stdscr.addstr(start_y + y, start_x, '│' + ' ' * (box_width - 2) + '│')
+        self.stdscr.addstr(start_y + box_height - 1, start_x, '└' + '─' * (box_width - 2) + '┘')
+        chat_name = self.contacts.get(self.selected_chat, self.selected_chat)
+        self.stdscr.addstr(start_y, start_x + 2, f" Chat with {chat_name} ", curses.color_pair(3) | curses.A_BOLD)
+        visible_height = box_height - 3
+        lines = self.inbox.get(self.selected_chat, [])
+        max_scroll = max(0, len(lines) - visible_height)
+        self.scroll_offset = min(self.scroll_offset, max_scroll)
+        visible_messages = lines[self.scroll_offset:self.scroll_offset + visible_height]
+        for idx, (msg, color) in enumerate(visible_messages, start=1):
+            self.stdscr.addstr(start_y + idx, start_x + 2, msg[:box_width - 4], curses.color_pair(color))
+        prompt_y = start_y + box_height
+        prompt_x = start_x
+        self.stdscr.addstr(prompt_y, prompt_x, "> ", curses.color_pair(4))
+        self.stdscr.move(prompt_y, prompt_x + 2)
+        self.stdscr.refresh()
+
+    async def display(self):
+        if self.selected_chat is None:
+            await self.display_contacts_box()
+        else:
+            await self.display_chat()
 
     async def receive_messages(self):
         while self.running:
             try:
-                sender, msg = await self.clientConnect.receive_message()
+                sender, msg = await self.client.receive_message()
                 if sender not in self.inbox:
                     self.inbox[sender] = []
-                    if sender not in self.contacts:
-                        self.contacts[sender] = sender
-                        self.save_contacts()
+                if sender not in self.contacts:
+                    self.contacts[sender] = sender
+                    self.save_contacts()
                 self.inbox[sender].append((f"{self.contacts.get(sender,sender)}: {msg}", 2))
-                if self.selectedChat == sender:
+                if self.selected_chat == sender:
                     await self.display()
             except:
                 await asyncio.sleep(0.1)
 
     async def input_loop(self):
-        h, w = self.stdscr.getmaxyx()
         curses.echo()
-        self.stdscr.keypad(True)
+        h, w = self.stdscr.getmaxyx()
         while self.running:
             await self.display()
             try:
-                input_row = h - 3
-                input_col = 1
-                offset = 2 if self.selectedChat is None else 1
-                msg_bytes = await asyncio.to_thread(self.stdscr.getstr, input_row, input_col + offset, w-2)
+                prompt_y = 2 + h - 4
+                prompt_x = 2
+                msg_bytes = await asyncio.to_thread(self.stdscr.getstr, prompt_y, prompt_x + 2, w - prompt_x - 3)
                 msg = msg_bytes.decode().strip()
             except:
                 continue
-
+            if not msg:
+                continue
             if msg.lower() in ("quit", "exit"):
                 self.running = False
                 break
-
-            if msg == "":
+            if msg.lower() == "up":
+                self.scroll_offset = max(0, self.scroll_offset - 1)
                 continue
-
-            if msg.lower() in ("up", "down"):
-                if msg.lower() == "up":
-                    self.scroll_offset = max(0, self.scroll_offset - 1)
-                else:
-                    self.scroll_offset += 1
+            if msg.lower() == "down":
+                self.scroll_offset += 1
                 continue
-
-            if self.selectedChat is None:
+            if self.selected_chat is None:
                 if msg.lower() == "add":
-                    new_id = await self.prompt_input("Enter new contact ID > ", 22)
-                    new_name = await self.prompt_input("Enter contact name > ", 20)
+                    new_id = await self.prompt_input("ID > ")
+                    new_name = await self.prompt_input("Name > ")
                     if new_id and new_name and new_id not in self.contacts:
                         self.contacts[new_id] = new_name
                         self.inbox[new_id] = []
@@ -160,24 +150,21 @@ class ClientApp:
                     continue
                 selected = self.select_contact(msg)
                 if selected:
-                    self.selectedChat = selected
+                    self.selected_chat = selected
                 continue
-
             await self.send_chat(msg)
 
     async def send_chat(self, msg):
-        if self.selectedChat not in self.inbox:
-            self.inbox[self.selectedChat] = []
-        self.inbox[self.selectedChat].append((f"> {msg}", 1))
-        await self.clientConnect.send_message_to(self.selectedChat, msg)
-        self.scroll_offset = max(0, len(self.inbox[self.selectedChat]) + 1)
+        self.inbox[self.selected_chat].append((f"> {msg}", 1))
+        await self.client.send_message_to(self.selected_chat, msg)
+        self.scroll_offset = max(0, len(self.inbox[self.selected_chat]) - 1)
 
-    async def prompt_input(self, prompt_text, col_start):
+    async def prompt_input(self, prompt_text):
         h, _ = self.stdscr.getmaxyx()
-        self.stdscr.addstr(h-3, 0, prompt_text)
+        self.stdscr.addstr(h-2, 2, prompt_text)
         self.stdscr.clrtoeol()
         self.stdscr.refresh()
-        input_bytes = await asyncio.to_thread(self.stdscr.getstr, h-3, col_start, 50)
+        input_bytes = await asyncio.to_thread(self.stdscr.getstr, h-2, 2 + len(prompt_text), 50)
         return input_bytes.decode().strip()
 
     def select_contact(self, msg):
@@ -187,16 +174,15 @@ class ClientApp:
         return None
 
     async def main(self):
-        await self.clientConnect.connect()
+        await self.client.connect()
         asyncio.create_task(self.receive_messages())
         await self.input_loop()
-        await self.clientConnect.close()
-        self.ui.log("[*] Client closed")
+        await self.client.close()
 
 def start(stdscr):
     curses.curs_set(1)
-    client = ClientApp(stdscr)
-    asyncio.run(client.main())
+    app = ClientApp(stdscr)
+    asyncio.run(app.main())
 
 if __name__ == "__main__":
     curses.wrapper(start)
