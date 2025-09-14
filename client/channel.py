@@ -4,8 +4,8 @@ from modules.protocol import Handshake
 from modules.crypto_utils import AESHandler
 
 class Channel:
-    def __init__(self, websocket, server_pub):
-        self.ws = websocket
+    def __init__(self, ws, server_pub):
+        self.ws = ws
         self.server_rsa = ServerRSA(server_pub)
         self.aesgcm = None
 
@@ -27,7 +27,11 @@ class Channel:
         try:
             async for msg in self.ws:
                 data = json.loads(msg)
-                plaintext = AESHandler.decrypt(self.aesgcm, bytes.fromhex(data["nonce"]), bytes.fromhex(data["ciphertext"]))
+                plaintext = AESHandler.decrypt(
+                    self.aesgcm,
+                    bytes.fromhex(data["nonce"]),
+                    bytes.fromhex(data["ciphertext"])
+                )
                 on_message(plaintext)
         except:
             on_disconnect()

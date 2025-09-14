@@ -4,7 +4,7 @@ import json
 import os
 from connection import ClientConnection
 
-CONTACTS_FILE = "contacts.json"
+CONTACTS_FILE = "./storage/contacts.json"
 
 class ClientApp:
     def __init__(self, stdscr):
@@ -19,11 +19,11 @@ class ClientApp:
         self.load_contacts()
         curses.start_color()
         curses.use_default_colors()
-        curses.init_pair(1, curses.COLOR_CYAN, -1)  # own message
-        curses.init_pair(2, 81, -1)                 # received azzurro chiaro
-        curses.init_pair(3, 81, -1)                 # header azzurro chiaro
-        curses.init_pair(4, 81, -1)                 # prompt azzurro chiaro
-        curses.init_pair(5, 81, -1)                 # testo default azzurro chiaro
+        curses.init_pair(1, curses.COLOR_CYAN, -1)
+        curses.init_pair(2, 81, -1)
+        curses.init_pair(3, 81, -1)
+        curses.init_pair(4, 81, -1)
+        curses.init_pair(5, 81, -1)
 
     def load_contacts(self):
         if os.path.exists(CONTACTS_FILE):
