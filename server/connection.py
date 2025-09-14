@@ -15,6 +15,7 @@ class ServerConnection:
         self.clients_map = clients_map
         self.client_id = None
         self.client_pub = None
+        self.used_nonces = []
         self.client_keys = self.load_client_keys()
 
     def load_client_keys(self):
@@ -85,7 +86,8 @@ class ServerConnection:
         try:
             data = json.loads(message)
             nonce, ct = bytes.fromhex(data.get("nonce", "")), bytes.fromhex(data.get("ciphertext", ""))
-            if (self.client_id, nonce) in self.used_nonces: return
+            if (self.client_id, nonce) in self.used_nonces: 
+                return
             self.used_nonces.append((self.client_id, nonce))
 
             plaintext = AESHandler.decrypt(self.aesgcm, nonce, ct)
@@ -96,4 +98,6 @@ class ServerConnection:
                 tconn = self.clients_map[target_id]
                 n, c = AESHandler.encrypt(tconn.aesgcm, json.dumps({"text": text, "sender": self.client_id}))
                 await tconn.ws.send(json.dumps({"nonce": n.hex(), "ciphertext": c.hex()}))
-        except: pass
+        except Exception as e: 
+            print(f"[!] Error {self.client_id}: {e}")
+            

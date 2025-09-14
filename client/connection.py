@@ -43,8 +43,13 @@ class ClientConnection:
         self.channel = Channel(self.ws, SERVER_PUB)
         await self.channel.handshake()
 
-        self.client_id = open(ID_FILE).read().strip() if os.path.exists(ID_FILE) else str(uuid.uuid4())
-
+        if os.path.exists(ID_FILE):
+            self.client_id = open(ID_FILE).read().strip()
+        else:
+            self.client_id = str(uuid.uuid4())
+            with open(ID_FILE,"w") as f:
+                f.write(self.client_id)
+        
         pub_bytes = CLIENT_PRIV.public_key().public_bytes(
             serialization.Encoding.PEM,
             serialization.PublicFormat.SubjectPublicKeyInfo
@@ -70,7 +75,6 @@ class ClientConnection:
         )
         challenge_bytes = bytes.fromhex(challenge)
 
-        # Firma del challenge
         sig = CLIENT_PRIV.sign(
             challenge_bytes,
             padding.PSS(padding.MGF1(hashes.SHA256()), padding.PSS.MAX_LENGTH),
@@ -79,13 +83,13 @@ class ClientConnection:
         n, c = AESHandler.encrypt(self.channel.aesgcm, sig.hex())
         await self.ws.send(json.dumps({"nonce": n.hex(), "ciphertext": c.hex()}))
 
-        # handshake completato
         self.receive_task = asyncio.create_task(self.channel.receive_loop(self.on_message, self.on_disconnect))
         print(f"[*] Connected as {self.client_id}")
 
 
     async def send_message_to(self, target_id, text):
         msg = {"target": target_id, "text": text}
+        print(msg)
         await self.channel.send(json.dumps(msg))
 
     async def receive_message(self):
