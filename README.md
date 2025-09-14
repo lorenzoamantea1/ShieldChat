@@ -6,14 +6,27 @@
 
 ## 🔒 Features
 
-- **Secure messaging** with AES-GCM 256-bit encryption.  
-- **RSA handshake** for client-server authentication.  
-- **No phone needed**: each client will have a random uuid, u can change it anytime
-- **No-log policy**: messages are never stored or printed.  
+- **Secure messaging** with AES-GCM 256-bit (confidentiality + authenticity).  
+- **RSA + ephemeral X25519 handshake** between client and server.  
+- **Persistent public key registry**: each client has a `client_id` UUID and a public key stored on the server.  
+- **Challenge-response** prevents impersonation of offline clients.  
+- **No message logging**: messages are never stored on the server.  
 - **Secure message forwarding** between clients.  
 - **Supports multiple simultaneous clients**.  
+- **No phone required**: each client uses a randomly generated UUID.
 
 ---
+
+
+## 🛡️ Security
+- **AES-GCM 256-bit encryption** for message confidentiality and authenticity.  
+- **RSA + ephemeral X25519 handshake** ensures that each client-server connection is securely established.  
+- **Persistent public key registry**: the server stores each client’s public key, preventing impersonation of offline clients.  
+- **Challenge-response mechanism**: clients must prove ownership of their private key before the server accepts the connection.  
+- **Nonces + session AES keys** prevent replay attacks.  
+- **No logging**: messages are never stored on the server.  
+- **Multi-client safe**: multiple clients can communicate simultaneously without risk of message leakage.
+
 
 ## 🚀 Installation
 ```bash
@@ -39,7 +52,6 @@ python3 main.py
 ### 💻 Client
 1. **Configure the client**  
 - Make sure the **host** and **port** match the server settings.
-
 2. **Start the client**  
 ```bash
 cd client
@@ -47,13 +59,4 @@ python3 main.py
 ```
 3. **Connect to another client**  
  Enter the **ID of the client** you want to chat with.
-
 4. **Chat securely!**  
-
-
-
-## 🛡️ Security
-- AES-GCM 256-bit for confidentiality and authenticity
-- Nonces + timestamps prevent replay attacks
-- Forward with session AES keys
-- Nothing is logged
