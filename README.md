@@ -25,7 +25,6 @@
 - **Nonces + session AES keys** prevent replay attacks.  
 - **No logging**: messages are never stored on the server.  
 - **Multi-client safe**: isolated sessions prevent message leakage between clients.
-- 
 ---
 
 ## 🚀 Installation
